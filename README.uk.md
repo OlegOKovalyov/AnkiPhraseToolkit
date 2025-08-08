@@ -40,6 +40,7 @@ python3 -m src.main --user
 
 📁 Структура проєкту
 
+```
 AnkiPhraseToolkit/
 ├── README.md
 ├── README.uk.md
@@ -55,6 +56,7 @@ AnkiPhraseToolkit/
 ├── anki_cards.tsv
 ├── requirements.txt
 └── .gitignore
+```
 
 🛠️ Технології
 

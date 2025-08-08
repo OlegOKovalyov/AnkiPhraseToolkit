@@ -27,6 +27,7 @@ Developed with ❤️ by **Oleg Kovalyov**.
 
 ## 📂 Project Structure
 
+```
 AnkiPhraseToolkit/
 ├── README.md
 ├── README.uk.md
@@ -39,7 +40,7 @@ AnkiPhraseToolkit/
 ├── data/
 ├── anki_cards.tsv
 └── requirements.txt
-
+```
 
 ## 📄 License
 
