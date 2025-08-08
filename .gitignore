@@ -1,0 +1,32 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Cursor/VS Code editor files
+.vscode/
+.cursor/
+
+# System backup files
+*.swp
+*.swo
+*~
+
+# Logs (if any)
+*.log
+
+# Anki files (if you export something manually)
+*.apkg
+*.anki2
+anki_cards.tsv
+
+# Ignore everything in data/
+data/*
+
+# Configuration file
+.env
+
+# But include this two files
+#!data/merged_cefr_frequency.csv
+#!data/irregular_verbs.py
+
