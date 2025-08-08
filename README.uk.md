@@ -69,3 +69,12 @@ AnkiPhraseToolkit/
 Oleg Kovalyov  
 
 Проєкт у активній розробці. Слідкуйте за оновленнями!
+
+
+## 📄 Ліцензія
+
+Ліцензія MIT
+
+---
+
+🇬🇧 [Switch to English version of README](README.md)
