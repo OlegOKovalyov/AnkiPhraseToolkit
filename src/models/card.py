@@ -1,4 +1,5 @@
 # src/models/card.py
+from typing import Optional
 from .expression import Expression
 from .sentence import Sentence
 
