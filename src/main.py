@@ -2,16 +2,20 @@ from src.models import AnkiCard, Expression, Sentence
 from src.export import AnkiExporter
 from src.services import UserManager
 from src.cli import CommandLineInterface
+from src.version import __version__
 import sys
 
 
 def show_about():
-    print("🧠 AnkiPhraseToolkit v0.1 from Oleg Kovalyov - CLI for Phrase-Based Learning Assistant")
+    print(f"🧠 AnkiPhraseToolkit v{__version__} from Oleg Kovalyov - CLI for Phrase-Based Learning Assistant")
 
 
-def prompt_deck_name():
+def prompt_deck_name(user_manager: UserManager):
+    current_deck = user_manager.get_current_deck()
+    if current_deck:
+        entered = input(f"Enter deckname [{current_deck}]: ").strip()
+        return current_deck if entered == "" else entered
     deck_name = input("Enter the name of your Anki deck: ").strip()
-    print(f"📦 Deck name: {deck_name}")
     return deck_name
 
 
@@ -30,11 +34,8 @@ def main():
     
     print()  # Add spacing
     
-    # Display current deck if exists
-    user_manager.display_current_deck()
-    
     # Prompt for deck name and save it
-    deck_name = prompt_deck_name()
+    deck_name = prompt_deck_name(user_manager)
     user_manager.set_current_deck(deck_name)
     print(f"✅ Deck '{deck_name}' saved to configuration.")
 

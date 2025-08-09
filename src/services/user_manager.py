@@ -111,15 +111,9 @@ class UserManager:
         print(f"🔍 Checking if user '{username}' exists in Anki...")
         
         if self.check_anki_user_exists(username):
-            print(f"✅ User '{username}' found in Anki database.")
-            response = input(f"🤔 Do you want to use '{username}' as your current user? (y/n): ").strip().lower()
-            if response in ['y', 'yes']:
-                self.set_current_user(username)
-                print(f"✅ Set '{username}' as current user.")
-                return True
-            else:
-                print("❌ User selection cancelled.")
-                return False
+            self.set_current_user(username)
+            print(f"✅ User '{username}' found in Anki database. Current user: '{username}'.")
+            return True
         else:
             print(f"❌ User '{username}' not found in Anki database.")
             response = input(f"🤔 Do you want to create user '{username}'? (y/n): ").strip().lower()
@@ -175,15 +169,18 @@ class UserManager:
         
         # If CLI username is provided, use it
         if cli_username:
+            print()
             return self.verify_and_set_user(cli_username)
         
-        # If no current user, prompt for one
+        # If no current user, prompt for one with surrounding blank lines
         if not current_user:
-            print("👋 Welcome to AnkiPhraseToolkit!")
-            print("📝 No user configuration found. Let's set up your user.")
+            print()
             username = self.prompt_for_username()
+            print()
             return self.verify_and_set_user(username)
         
-        # Display current user
-        self.display_current_user()
+        # If a current user exists, allow inline confirmation/change
+        entered = input(f"Enter username [{current_user}]: ").strip()
+        if entered:
+            self.set_current_user(entered)
         return True 

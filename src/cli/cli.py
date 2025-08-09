@@ -22,26 +22,13 @@ class CommandLineInterface:
         )
 
     def parse_args(self):
-        try:
-            args = self.parser.parse_args()
-            self._check_username_format(args.user)
-            return args
-        except SystemExit:
-            # Handle the case where argparse exits due to unrecognized arguments
-            print("❌ Error: Username with spaces must be enclosed in quotes!")
-            print("💡 Correct usage: python3 -m src.main --user \"User 1\"")
-            print("📝 Example: python3 -m src.main --user \"User Name\"")
-            print()
-            # Return a default args object to continue execution
-            return argparse.Namespace(user=None, lang="en")
-    
-    def _check_username_format(self, username: Optional[str]) -> None:
-        """Check if username contains spaces and warn about proper quoting."""
-        if username and ' ' in username:
-            print("⚠️  Warning: Username contains spaces!")
-            print("💡 For usernames with spaces, use quotes: --user \"User Name\"")
-            print("📝 Example: python3 -m src.main --user \"User 1\"")
-            print()
+        # Parse without exiting on unknown to provide a quiet, custom error message
+        args, unknown = self.parser.parse_known_args()
+        if unknown:
+            print("❌ Error: unrecognized or invalid arguments.")
+            print('💡 Usage: python3 -m src.main --user "User Name"\nExiting...')
+            sys.exit(1)
+        return args
     
     def get_user_argument(self) -> Optional[str]:
         """Get the user argument from parsed args."""
