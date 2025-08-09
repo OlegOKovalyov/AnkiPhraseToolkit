@@ -10,6 +10,10 @@ class UserManager:
         self.config_dir = Path("data")
         self.config_file = self.config_dir / "user_config.json"
         self.anki_db_path = self._get_anki_db_path()
+        # Dependencies will be injected by main.py
+        self.notifier = getattr(self, "notifier", None)
+        self.prompter = getattr(self, "prompter", None)
+        self.loc = getattr(self, "loc", None)
         
     def _get_anki_db_path(self) -> Optional[Path]:
         """Get the path to the Anki database based on the operating system."""
@@ -72,96 +76,68 @@ class UserManager:
             return False
             
         try:
-            # Connect to Anki database
             conn = sqlite3.connect(str(self.anki_db_path))
             cursor = conn.cursor()
-            
-            # Check if user exists (this is a simplified check)
-            # In a real implementation, you'd need to check the actual Anki user structure
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-            tables = cursor.fetchall()
-            
+            cursor.fetchall()
             conn.close()
-            
-            # For now, we'll assume the user exists if we can access the database
-            # In a real implementation, you'd check the actual user structure
             return True
-            
         except sqlite3.Error:
             return False
     
     def create_anki_user(self, username: str) -> bool:
         """Create a new Anki user (stub implementation)."""
-        # This is a stub implementation
-        # In a real implementation, you'd use Anki's API to create a user
-        print(f"🔄 Creating Anki user: {username}")
-        print("📝 Note: This is a stub implementation. In a real scenario, this would create the user in Anki.")
+        self.notifier.info(self.loc.t("user.creating", username=username))
+        self.notifier.info(self.loc.t("user.create_stub_note"))
         return True
     
     def prompt_for_username(self) -> str:
         """Prompt user to enter a username."""
         while True:
-            username = input("👤 Please enter your username: ").strip()
+            self.notifier.blank()
+            username = self.prompter.ask(self.loc.t("user.enter_new")).strip()
+            self.notifier.blank()
             if username:
                 return username
-            print("❌ Username cannot be empty. Please try again.")
+            self.notifier.error(self.loc.t("user.empty_error"))
     
     def verify_and_set_user(self, username: str) -> bool:
         """Verify user exists in Anki and set as current user."""
-        print(f"🔍 Checking if user '{username}' exists in Anki...")
+        self.notifier.blank()
+        self.notifier.info(self.loc.t("user.checking", username=username))
         
         if self.check_anki_user_exists(username):
             self.set_current_user(username)
-            print(f"✅ User '{username}' found in Anki database. Current user: '{username}'.")
+            self.notifier.success(self.loc.t("user.found_set", username=username))
             return True
         else:
-            print(f"❌ User '{username}' not found in Anki database.")
-            response = input(f"🤔 Do you want to create user '{username}'? (y/n): ").strip().lower()
-            if response in ['y', 'yes']:
+            self.notifier.error(self.loc.t("user.not_found", username=username))
+            confirm = self.prompter.confirm(self.loc.t("user.create_confirm", username=username))
+            if confirm:
                 if self.create_anki_user(username):
                     self.set_current_user(username)
-                    print(f"✅ Created and set '{username}' as current user.")
+                    self.notifier.success(self.loc.t("user.created_set", username=username))
                     return True
                 else:
-                    print("❌ Failed to create user.")
+                    self.notifier.error(self.loc.t("user.create_failed"))
                     return False
             else:
-                print("❌ User creation cancelled.")
+                self.notifier.info(self.loc.t("user.creation_cancelled"))
                 return False
     
-    def _get_cli_hint(self, username: str) -> str:
-        """Generate appropriate CLI hint based on username content."""
-        if ' ' in username:
-            return f'💡 To change user, run: python3 -m src.main --user "{username}"'
-        else:
-            return f'💡 To change user, run: python3 -m src.main --user {username}'
-    
-    def _get_cli_hint_generic(self) -> str:
-        """Generate generic CLI hint with proper quoting example."""
-        return '💡 To change user, run: python3 -m src.main --user "<new_username>"'
-    
     def display_current_user(self) -> None:
-        """Display the current user and helpful information."""
         current_user = self.get_current_user()
         if current_user:
-            print(f"🔐 Current Anki user: {current_user}")
-            # Show specific hint if username contains spaces
-            if ' ' in current_user:
-                print(self._get_cli_hint(current_user))
-                print("⚠️  Note: Usernames with spaces must be enclosed in quotes!")
-            else:
-                print(self._get_cli_hint(current_user))
+            self.notifier.info(self.loc.t("user.current", username=current_user))
         else:
-            print("🔐 No current user set")
-            print(self._get_cli_hint_generic())
+            self.notifier.info(self.loc.t("user.no_current"))
     
     def display_current_deck(self) -> None:
-        """Display the current deck."""
         current_deck = self.get_current_deck()
         if current_deck:
-            print(f"📦 Current Anki deck: {current_deck}")
+            self.notifier.info(self.loc.t("deck.current", deckname=current_deck))
         else:
-            print("📦 No current deck set")
+            self.notifier.info(self.loc.t("deck.no_current"))
     
     def handle_user_setup(self, cli_username: Optional[str] = None) -> bool:
         """Handle the complete user setup process."""
@@ -169,18 +145,18 @@ class UserManager:
         
         # If CLI username is provided, use it
         if cli_username:
-            print()
+            self.notifier.blank()
             return self.verify_and_set_user(cli_username)
         
         # If no current user, prompt for one with surrounding blank lines
         if not current_user:
-            print()
+            self.notifier.blank()
             username = self.prompt_for_username()
-            print()
+            self.notifier.blank()
             return self.verify_and_set_user(username)
         
         # If a current user exists, allow inline confirmation/change
-        entered = input(f"Enter username [{current_user}]: ").strip()
+        entered = self.prompter.ask(self.loc.t("user.enter_with_default", username=current_user)).strip()
         if entered:
             self.set_current_user(entered)
         return True 

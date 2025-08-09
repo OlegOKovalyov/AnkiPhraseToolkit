@@ -3,11 +3,14 @@ import argparse
 import sys
 from typing import Optional
 
+from src.utils.localization import Localization
+from src.utils.notifier import Notifier
+
 
 class CommandLineInterface:
     def __init__(self):
         self.parser = argparse.ArgumentParser(
-            description="AnkiPhraseToolkit v0.1 CLI for Phrase-Based Learning Assistant"
+            description="AnkiPhraseToolkit CLI"
         )
         self.parser.add_argument(
             "--user", 
@@ -24,9 +27,12 @@ class CommandLineInterface:
     def parse_args(self):
         # Parse without exiting on unknown to provide a quiet, custom error message
         args, unknown = self.parser.parse_known_args()
+        lang = getattr(args, "lang", "en")
+        loc = Localization(lang=lang)
+        notifier = Notifier()
         if unknown:
-            print("❌ Error: unrecognized or invalid arguments.")
-            print('💡 Usage: python3 -m src.main --user "User Name"\nExiting...')
+            notifier.error(loc.t("cli.invalid_args"))
+            notifier.info(loc.t("cli.usage"))
             sys.exit(1)
         return args
     

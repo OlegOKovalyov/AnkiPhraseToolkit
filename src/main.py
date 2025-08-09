@@ -5,17 +5,25 @@ from src.cli import CommandLineInterface
 from src.version import __version__
 import sys
 
+from src.utils.localization import Localization
+from src.utils.notifier import Notifier
+from src.utils.prompter import Prompter
+
+loc = Localization(lang="en")  # Пізніше тут можна буде поставити "uk"
+notifier = Notifier()
+prompter = Prompter(loc)
+
 
 def show_about():
-    print(f"🧠 AnkiPhraseToolkit v{__version__} from Oleg Kovalyov - CLI for Phrase-Based Learning Assistant")
+    notifier.system(loc.t("system.starting_app", version=__version__))
 
 
 def prompt_deck_name(user_manager: UserManager):
     current_deck = user_manager.get_current_deck()
     if current_deck:
-        entered = input(f"Enter deckname [{current_deck}]: ").strip()
+        entered = prompter.ask(loc.t("deck.enter_with_default", deckname=current_deck)).strip()
         return current_deck if entered == "" else entered
-    deck_name = input("Enter the name of your Anki deck: ").strip()
+    deck_name = prompter.ask(loc.t("deck.enter")).strip()
     return deck_name
 
 
@@ -24,20 +32,25 @@ def main():
     
     # Initialize user management
     user_manager = UserManager()
+    # Inject dependencies into user_manager
+    user_manager.notifier = notifier
+    user_manager.prompter = prompter
+    user_manager.loc = loc
+
     cli = CommandLineInterface()
     
     # Handle user setup
     cli_username = cli.get_user_argument()
     if not user_manager.handle_user_setup(cli_username):
-        print("❌ User setup failed. Exiting.")
+        notifier.error(loc.t("errors.user_setup_failed"))
         sys.exit(1)
     
-    print()  # Add spacing
+    Notifier.blank()  # Add spacing
     
     # Prompt for deck name and save it
     deck_name = prompt_deck_name(user_manager)
     user_manager.set_current_deck(deck_name)
-    print(f"✅ Deck '{deck_name}' saved to configuration.")
+    notifier.success(loc.t("deck.saved", deckname=deck_name))
 
     # Create Expression and Sentence objects
     expression = Expression("get rid of")
@@ -54,7 +67,7 @@ def main():
 
     exporter = AnkiExporter()
     exporter.export([card], "anki_cards.tsv")
-    print("✅ Card exported.")
+    notifier.success(loc.t("status.card_exported"))
 
 
 if __name__ == "__main__":

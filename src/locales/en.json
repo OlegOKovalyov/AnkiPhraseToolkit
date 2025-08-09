@@ -1,0 +1,41 @@
+{
+  "system": {
+    "starting_app": "AnkiPhraseToolkit v{version} from Oleg Kovalyov - CLI for Phrase-Based Learning Assistant"
+  },
+  "cli": {
+    "invalid_args": "Error: unrecognized or invalid arguments.",
+    "usage": "Usage: python3 -m src.main --user \"User Name\"\nExiting..."
+  },
+  "user": {
+    "enter_new": "Please enter your username:",
+    "enter_with_default": "Enter username [{username}]:",
+    "empty_error": "Username cannot be empty. Please try again.",
+    "checking": "Checking if user '{username}' exists in Anki...",
+    "found_set": "User '{username}' found in Anki database. Current user: '{username}'.",
+    "not_found": "User '{username}' not found in Anki database.",
+    "create_confirm": "Do you want to create user '{username}'?",
+    "created_set": "Created and set '{username}' as current user.",
+    "create_failed": "Failed to create user.",
+    "creation_cancelled": "User creation cancelled.",
+    "creating": "Creating Anki user: {username}",
+    "create_stub_note": "Note: This is a stub implementation. In a real scenario, this would create the user in Anki.",
+    "current": "Current Anki user: {username}",
+    "no_current": "No current user set"
+  },
+  "deck": {
+    "enter": "Enter the name of your Anki deck:",
+    "enter_with_default": "Enter deckname [{deckname}]:",
+    "saved": "Deck '{deckname}' saved to configuration.",
+    "current": "Current Anki deck: {deckname}",
+    "no_current": "No current deck set"
+  },
+  "status": {
+    "card_exported": "Card exported."
+  },
+  "errors": {
+    "user_setup_failed": "User setup failed. Exiting."
+  },
+  "prompter": {
+    "enter_number": "Enter number:"
+  }
+}
